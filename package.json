@@ -2,11 +2,12 @@
   "name": "clinic",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js"
+    "build": "npx prisma generate && tsc",
+    "start": "node dist/server.js",
+    "deploy": "npx prisma migrate deploy && node dist/server.js"
   },
   "keywords": [],
   "author": "",
