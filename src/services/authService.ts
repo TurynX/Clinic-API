@@ -79,7 +79,7 @@ export async function loginService(result: any) {
     throw new Error("Failed to create refresh token");
   }
 
-  return { user: user, refreshToken: refreshTokenCreated };
+  return { user: user, refreshToken: refreshToken };
 }
 
 export async function refreshTokenService(refreshToken: string) {
@@ -138,6 +138,26 @@ export async function refreshTokenService(refreshToken: string) {
   }
 
   return { user, refreshToken: newRefreshToken };
+}
+
+export async function logoutService(refreshToken: string) {
+  const refreshTokenHash = await hashRefreshToken(refreshToken);
+  const refreshTokenFound = await prisma.refreshToken.findUnique({
+    where: { token: refreshTokenHash },
+  });
+
+  if (!refreshTokenFound) {
+    throw new Error("Refresh token not found");
+  }
+
+  await prisma.refreshToken.update({
+    where: { id: refreshTokenFound.id },
+    data: {
+      revoked: true,
+    },
+  });
+
+  return { message: "Refresh token revoked" };
 }
 
 export async function getMeService(id: string) {
@@ -204,8 +224,11 @@ export async function updatePatientService(
 }
 
 export async function deletePatientService(id: string) {
-  const patient = await prisma.patient.delete({
+  const patient = await prisma.patient.update({
     where: { id },
+    data: {
+      deletedAt: new Date(),
+    },
   });
   return patient;
 }

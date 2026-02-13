@@ -12,6 +12,7 @@ import {
   getPatientServiceById,
   getPatientsService,
   loginService,
+  logoutService,
   refreshTokenService,
   registerService,
   updatePatientService,
@@ -84,8 +85,10 @@ export async function refreshTokenController(
     if (!parsed.success) return reply.status(400).send(parsed.error.format());
 
     const { refreshToken } = parsed.data;
+
     const { user, refreshToken: newRefreshToken } =
       await refreshTokenService(refreshToken);
+
     const accessToken = await generateAccessToken(reply, user);
 
     const { password, ...safeUser } = user;
@@ -96,6 +99,24 @@ export async function refreshTokenController(
       refreshToken: newRefreshToken,
     });
   } catch (error) {
+    console.log(error);
+    return reply.status(500).send({ message: "Internal server error" });
+  }
+}
+
+export async function logoutController(
+  req: FastifyRequest,
+  reply: FastifyReply,
+) {
+  try {
+    const parsed = refreshTokenSchema.safeParse(req.body);
+    if (!parsed.success) return reply.status(400).send(parsed.error.format());
+
+    const { refreshToken } = parsed.data;
+    const result = await logoutService(refreshToken);
+    return reply.status(200).send(result);
+  } catch (error) {
+    console.log(error);
     return reply.status(500).send({ message: "Internal server error" });
   }
 }
@@ -109,7 +130,9 @@ export async function getMeController(
   if (!user) {
     return reply.status(404).send({ message: "User not found" });
   }
-  return reply.status(200).send(user);
+
+  const { password, ...safeUser } = user;
+  return reply.status(200).send(safeUser);
 }
 
 export async function createPatientController(

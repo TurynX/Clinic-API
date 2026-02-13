@@ -1,4 +1,5 @@
 import { prisma } from "../lib/db.js";
+import { redis } from "../lib/redis.js";
 import { Status } from "@prisma/client";
 
 export async function createAppointmentService(
@@ -48,16 +49,23 @@ export async function getAppointmentsService(id: string) {
   }
 
   if (user.role === "DOCTOR") {
+    const cachedAppointmentsDoctor = await redis.get(`appointments${user.id}`);
+    if (cachedAppointmentsDoctor) {
+      return JSON.parse(cachedAppointmentsDoctor);
+    }
     const appointments = await prisma.appointment.findMany({
       where: { doctorId: user.id },
     });
+
+    await redis.set(`appointments${user.id}`, JSON.stringify(appointments));
+
     return appointments;
   }
-  if (user.role === "RECEPTIONIST") {
-    const appointments = await prisma.appointment.findMany();
-    return appointments;
-  }
+
   const appointments = await prisma.appointment.findMany();
+
+  await redis.set(`appointments`, JSON.stringify(appointments));
+
   return appointments;
 }
 

@@ -61,6 +61,7 @@ model Patient {
   notes     String
   gender    Gender
   createdAt DateTime @default(now())
+  deletedAt DateTime?
   appointments Appointment[]
 }
 

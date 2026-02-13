@@ -20,14 +20,20 @@ export const patientSchema = z.object({
 });
 
 export const appointmentSchema = z.object({
-  date: z.string(),
+  date: z.string().transform((val) => {
+    const [month, day, year] = val.split("/");
+    return new Date(Number(year), Number(month) - 1, Number(day));
+  }),
   status: z.enum(["SCHEDULED", "CONFIRMED", "MISSED", "REALIZED", "CANCELLED"]),
   patientName: z.string(),
   doctorName: z.string(),
 });
 
 export const updateAppointmentSchema = z.object({
-  date: z.string(),
+  date: z.string().transform((val) => {
+    const [month, day, year] = val.split("/");
+    return new Date(Number(year), Number(month) - 1, Number(day));
+  }),
   status: z.enum(["SCHEDULED", "CONFIRMED", "MISSED", "REALIZED", "CANCELLED"]),
   patientName: z.string(),
   doctorName: z.string(),

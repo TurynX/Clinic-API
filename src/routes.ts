@@ -9,6 +9,7 @@ import {
   getMeController,
   updatePatientController,
   refreshTokenController,
+  logoutController,
 } from "./controllers/auth.js";
 import {
   createAppointmentController,
@@ -38,6 +39,12 @@ export async function routes(app: FastifyInstance) {
     "/api/auth/refresh",
     { preHandler: [jwtAuthMiddleware] },
     refreshTokenController,
+  );
+
+  app.post(
+    "/api/auth/logout",
+    { preHandler: [jwtAuthMiddleware] },
+    logoutController,
   );
 
   app.get("/api/auth/me", { preHandler: [jwtAuthMiddleware] }, getMeController);

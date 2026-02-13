@@ -34,7 +34,7 @@ export async function getAppointmentsController(
   req: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const appointments = await getAppointmentsService(req.user.id);
+  const appointments = await getAppointmentsService(req.user.sub);
   return reply.status(200).send(appointments);
 }
 
