@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Processing Login...</title>
+  </head>
+  <body>
+    <p>Processing login...</p>
+
+    <script>
+      // Parse the callback from Auth0
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+      const error = params.get("error");
+
+      if (error) {
+        console.error("Auth error:", error);
+        window.location.href = "/public/login.html?error=" + error;
+      } else if (code) {
+        // Send code to your backend
+        fetch("http://localhost:3333/api/auth/callback?code=" + code)
+          .then((res) => res.json())
+          .then((data) => {
+            localStorage.setItem("token", data.token);
+            window.location.href = "/public/dashboard.html";
+          })
+          .catch((err) => {
+            console.error("Login failed:", err);
+            window.location.href = "/public/login.html";
+          });
+      }
+    </script>
+  </body>
+</html>

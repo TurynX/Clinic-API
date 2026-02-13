@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Clinic API Test</title>
+    <script src="./auth0-spa-js.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+      button {
+        margin: 4px 0;
+      }
+      input {
+        margin: 2px 0;
+        width: 250px;
+      }
+      pre {
+        background: #111;
+        color: #0f0;
+        padding: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2>Auth</h2>
+    <button id="login">Login</button>
+    <button id="logout">Logout</button>
+
+    <h3>Token</h3>
+    <pre id="token">---</pre>
+
+    <hr />
+
+    <h2>Patients</h2>
+    <input id="p-name" placeholder="Name" />
+    <input id="p-phone" placeholder="Phone" />
+    <input id="p-notes" placeholder="Notes" />
+    <button onclick="createPatient()">POST /api/patients</button>
+
+    <br /><br />
+    <input id="p-id" placeholder="Patient ID" />
+    <button onclick="getPatient()">GET /api/patients/:id</button>
+    <button onclick="deletePatient()">DELETE /api/patients/:id</button>
+
+    <hr />
+
+    <h2>Appointments</h2>
+    <input id="a-patient" placeholder="Patient ID" />
+    <input id="a-doctor" placeholder="Doctor ID" />
+    <input id="a-date" placeholder="2026-02-10T10:00:00Z" />
+    <button onclick="createAppointment()">POST /api/appointments</button>
+
+    <br /><br />
+    <input id="a-id" placeholder="Appointment ID" />
+    <button onclick="updateAppointment()">PUT /api/appointments/:id</button>
+    <button onclick="getAppointments()">GET /api/appointments</button>
+
+    <pre id="response"></pre>
+
+    <script>
+      let auth0Client;
+      let token;
+
+      async function init() {
+        auth0Client = await auth0.createAuth0Client({
+          domain: "dev-5gi0tc0lpw0623nw.us.auth0.com",
+          clientId: "za6zIIJ2skLOWeRdwHHkinRfQSdcGj0s",
+          authorizationParams: {
+            redirect_uri: window.location.origin,
+            audience: "http://clinic/",
+          },
+        });
+
+        document.getElementById("login").onclick = () =>
+          auth0Client.loginWithRedirect();
+
+        document.getElementById("logout").onclick = () =>
+          auth0Client.logout({
+            logoutParams: { returnTo: window.location.origin },
+          });
+
+        if (location.search.includes("code=")) {
+          await auth0Client.handleRedirectCallback();
+          history.replaceState({}, "", "/");
+        }
+
+        if (await auth0Client.isAuthenticated()) {
+          token = await auth0Client.getTokenSilently();
+          document.getElementById("token").innerText = token;
+        }
+      }
+
+      async function api(path, method = "GET", body) {
+        const res = await fetch(`http://localhost:3000${path}`, {
+          method,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: body ? JSON.stringify(body) : undefined,
+        });
+
+        const text = await res.text();
+        document.getElementById("response").innerText = text;
+      }
+
+      function createPatient() {
+        api("/api/patients", "POST", {
+          name: p - name.value,
+          phone: p - phone.value,
+          notes: p - notes.value,
+        });
+      }
+
+      function getPatient() {
+        api(`/api/patients/${p - id.value}`);
+      }
+
+      function deletePatient() {
+        api(`/api/patients/${p - id.value}`, "DELETE");
+      }
+
+      function createAppointment() {
+        api("/api/appointments", "POST", {
+          patientId: a - patient.value,
+          doctorId: a - doctor.value,
+          date: a - date.value,
+        });
+      }
+
+      function updateAppointment() {
+        api(`/api/appointments/${a - id.value}`, "PUT", {
+          status: "CONFIRMED",
+        });
+      }
+
+      function getAppointments() {
+        api("/api/appointments");
+      }
+
+      init();
+    </script>
+  </body>
+</html>
