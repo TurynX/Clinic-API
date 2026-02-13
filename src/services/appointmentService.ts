@@ -3,7 +3,7 @@ import { redis } from "../lib/redis.js";
 import { Status } from "@prisma/client";
 
 export async function createAppointmentService(
-  date: string,
+  date: Date,
   status: Status,
   patientName: string,
   doctorName: string,

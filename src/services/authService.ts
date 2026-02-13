@@ -1,16 +1,16 @@
 import { randomUUID } from "crypto";
-import { prisma } from "../lib/db";
+import { prisma } from "../lib/db.js";
 import {
   InvalidCredentialsError,
   UserExistsError,
   UserNotFoundError,
-} from "../utils/error";
+} from "../utils/error.js";
 import {
   comparePassword,
   generateRefreshToken,
   hashPassword,
   hashRefreshToken,
-} from "../utils/hash";
+} from "../utils/hash.js";
 import dayjs from "dayjs";
 
 export async function registerService(
