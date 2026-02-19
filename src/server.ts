@@ -7,6 +7,11 @@ import { fileURLToPath } from "url";
 import { redis } from "./lib/redis.js";
 import rateLimit from "@fastify/rate-limit";
 import jwt from "@fastify/jwt";
+import "./workers/appointment.worker.js";
+import { createBullBoard } from "@bull-board/api";
+import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
+import { FastifyAdapter } from "@bull-board/fastify";
+import { queue } from "./lib/redis.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,6 +36,17 @@ const start = async () => {
     });
 
     await app.register(routes);
+    const serverAdapter = new FastifyAdapter();
+
+    createBullBoard({
+      queues: [new BullMQAdapter(queue)],
+      serverAdapter,
+    });
+
+    serverAdapter.setBasePath("/admin/queues");
+    await app.register(serverAdapter.registerPlugin(), {
+      prefix: "/admin/queues",
+    });
     await app.listen({ port: 3333, host: "0.0.0.0" });
 
     console.log(`🔥 Servidor rodando em http://localhost:3333`);

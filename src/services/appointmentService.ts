@@ -1,5 +1,5 @@
 import { prisma } from "../lib/db.js";
-import { redis } from "../lib/redis.js";
+import { queue, redis } from "../lib/redis.js";
 import { Status } from "@prisma/client";
 
 export async function createAppointmentService(
@@ -35,6 +35,11 @@ export async function createAppointmentService(
       patientId: patient.id,
       doctorId: doctor.id,
     },
+  });
+
+  await queue.add("send-confirmation-email", {
+    email: "ivanirnas53@gmail.com",
+    name: patientName,
   });
 
   return appointment;
