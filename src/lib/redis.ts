@@ -1,14 +1,15 @@
 import { Redis } from "ioredis";
 import { Queue } from "bullmq";
-const port = process.env.REDIS_PORT;
+const REDIS_URL = process.env.REDIS_URL!;
 
-export const redis = new Redis({
-  host: process.env.REDIS_HOST,
-  port: port ? Number(port) : undefined,
+export const redis = new Redis(REDIS_URL, {
+  maxRetriesPerRequest: null,
+  tls: REDIS_URL.startsWith("rediss://") ? {} : undefined,
 });
 export const bullmqConnection = {
-  host: process.env.REDIS_HOST,
-  port: port ? Number(port) : undefined,
+  url: REDIS_URL,
+  tls: REDIS_URL.startsWith("rediss://") ? {} : undefined,
+  maxRetriesPerRequest: null as null,
 };
 
 export const queue = new Queue("appointment", { connection: bullmqConnection });
