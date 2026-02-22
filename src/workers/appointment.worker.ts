@@ -1,6 +1,6 @@
 import { Worker } from "bullmq";
 import nodemailer from "nodemailer";
-import { bullmqConnection } from "../lib/redis";
+import { bullmqConnection } from "../lib/redis.js";
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
