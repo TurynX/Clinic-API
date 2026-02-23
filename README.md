@@ -19,6 +19,8 @@ PostgreSQL
 
 Redis
 
+Queue
+
 JWT
 
 Zod
