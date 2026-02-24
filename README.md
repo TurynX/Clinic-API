@@ -29,6 +29,8 @@ Bcrypt
 
 Authentication
 
+Vitest
+
 The API uses:
 
 Access Token (15 minutes)
