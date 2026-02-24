@@ -48,7 +48,13 @@ Clinic API allows clinics to manage doctors, receptionists and patients. Users c
 
 ## 🚀 Getting Started
 
+<<<<<<< HEAD
 ### Prerequisites
+=======
+Vitest
+
+The API uses:
+>>>>>>> 7de05f0c1bbea39182366499370ed9c10ec6ae13
 
 - Node.js 20+
 - PostgreSQL
