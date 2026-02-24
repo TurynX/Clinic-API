@@ -2,16 +2,19 @@ import { prisma } from "../lib/db.js";
 import { queue, redis } from "../lib/redis.js";
 import { Status } from "@prisma/client";
 
-export async function createAppointmentService(
-  date: Date,
-  status: Status,
-  patientName: string,
-  doctorName: string,
-) {
+export async function createAppointmentService(data: {
+  date: Date;
+  status: Status;
+  patientName: string;
+  doctorName: string;
+}) {
+  const { date, status, patientName, doctorName } = data;
+
   const patient = await prisma.patient.findFirst({
     where: { name: patientName },
     select: {
       id: true,
+      email: true,
     },
   });
 
@@ -19,6 +22,7 @@ export async function createAppointmentService(
     where: { name: doctorName },
     select: {
       id: true,
+      email: true,
     },
   });
 
@@ -38,7 +42,7 @@ export async function createAppointmentService(
   });
 
   await queue.add("send-confirmation-email", {
-    email: "ivanirnas53@gmail.com",
+    email: patient.email,
     name: patientName,
   });
 
@@ -85,16 +89,27 @@ export async function getAppointmentServiceById(id: string) {
   return appointment;
 }
 
-export async function updateAppointmentService(id: string, data: any) {
+export async function updateAppointmentService(
+  id: string,
+  data: {
+    date?: Date;
+    status?: Status;
+    patientName?: string;
+    doctorName?: string;
+    patientId?: string;
+    doctorId?: string;
+  },
+) {
+  const { date, status, patientName, doctorName, patientId, doctorId } = data;
   const appointment = await prisma.appointment.update({
     where: { id },
     data: {
-      status: data.status,
-      date: data.date,
-      patientName: data.patientName,
-      doctorName: data.doctorName,
-      patientId: data.patientId,
-      doctorId: data.doctorId,
+      ...(status && { status }),
+      ...(date && { date: new Date(date) }),
+      ...(patientName && { patientName }),
+      ...(doctorName && { doctorName }),
+      ...(patientId && { patientId }),
+      ...(doctorId && { doctorId }),
     },
   });
   return appointment;

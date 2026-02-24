@@ -57,6 +57,7 @@ model RefreshToken {
 model Patient {
   id        String     @id @default(uuid())
   name      String
+  email     String
   phone     String
   notes     String
   gender    Gender

@@ -173,6 +173,7 @@ export async function getMeService(id: string) {
 
 export async function createPatientService(
   name: string,
+  email: string,
   phone: string,
   notes: string,
   gender: "MALE" | "FEMALE",
@@ -180,6 +181,7 @@ export async function createPatientService(
   const patient = await prisma.patient.create({
     data: {
       name,
+      email,
       phone,
       notes,
       gender,
@@ -207,6 +209,7 @@ export async function getPatientServiceById(id: string) {
 export async function updatePatientService(
   id: string,
   name: string,
+  email: string,
   phone: string,
   notes: string,
   gender: "MALE" | "FEMALE",
@@ -214,10 +217,11 @@ export async function updatePatientService(
   const patient = await prisma.patient.update({
     where: { id },
     data: {
-      name,
-      phone,
-      notes,
-      gender,
+      ...(name && { name }),
+      ...(email && { email }),
+      ...(phone && { phone }),
+      ...(notes && { notes }),
+      ...(gender && { gender }),
     },
   });
   return patient;

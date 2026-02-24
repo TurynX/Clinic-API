@@ -4,6 +4,7 @@ import {
   loginSchema,
   patientSchema,
   refreshTokenSchema,
+  updatePatientSchema,
 } from "../utils/schema.js";
 import {
   createPatientService,
@@ -65,11 +66,11 @@ export async function loginController(
       refreshToken,
     });
   } catch (error) {
-    if (
-      error instanceof InvalidCredentialsError ||
-      error instanceof UserNotFoundError
-    ) {
-      return reply.status(400).send({ message: error.message });
+    if (error instanceof InvalidCredentialsError) {
+      return reply.status(401).send({ message: error.message });
+    }
+    if (error instanceof UserNotFoundError) {
+      return reply.status(404).send({ message: error.message });
     }
     console.log(error);
     return reply.status(500).send({ message: "Internal server error" });
@@ -99,6 +100,12 @@ export async function refreshTokenController(
       refreshToken: newRefreshToken,
     });
   } catch (error) {
+    if (error instanceof InvalidCredentialsError) {
+      return reply.status(401).send({ message: error.message });
+    }
+    if (error instanceof UserNotFoundError) {
+      return reply.status(404).send({ message: error.message });
+    }
     console.log(error);
     return reply.status(500).send({ message: "Internal server error" });
   }
@@ -142,9 +149,9 @@ export async function createPatientController(
   const parsed = patientSchema.safeParse(req.body);
   if (!parsed.success) return reply.status(400).send(parsed.error.format());
 
-  const { name, phone, notes, gender } = parsed.data;
+  const { name, email, phone, notes, gender } = parsed.data;
 
-  const user = await createPatientService(name, phone, notes, gender);
+  const user = await createPatientService(name, email, phone, notes, gender);
 
   if (!user) {
     return reply.status(400).send({ message: "Failed to create patient" });
@@ -174,12 +181,22 @@ export async function updatePatientController(
   reply: FastifyReply,
 ) {
   const { id } = req.params as { id: string };
-  const parsed = patientSchema.safeParse(req.body);
+  const parsed = updatePatientSchema.safeParse(req.body);
   if (!parsed.success) return reply.status(400).send(parsed.error.format());
 
-  const { name, phone, notes, gender } = parsed.data;
+  const { name, email, phone, notes, gender } = parsed.data;
 
-  const patient = await updatePatientService(id, name, phone, notes, gender);
+  const patient = await updatePatientService(
+    id,
+    name!,
+    email!,
+    phone!,
+    notes!,
+    gender!,
+  );
+  if (!patient) {
+    return reply.status(400).send({ message: "Failed to update patient" });
+  }
   return reply.status(200).send(patient);
 }
 

@@ -15,14 +15,9 @@ export async function createAppointmentController(
   const parsed = appointmentSchema.safeParse(req.body);
   if (!parsed.success) return reply.status(400).send(parsed.error.format());
 
-  const { date, status, patientName, doctorName } = parsed.data;
+  const data = parsed.data;
 
-  const appointment = await createAppointmentService(
-    date,
-    status,
-    patientName,
-    doctorName,
-  );
+  const appointment = await createAppointmentService(data);
 
   if (!appointment) {
     return reply.status(400).send({ message: "Failed to create appointment" });

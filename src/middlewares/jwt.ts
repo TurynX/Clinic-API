@@ -31,6 +31,16 @@ export async function requireRoleDoctor(
   }
 }
 
+export async function requireRoleDoctorOrReceptionist(
+  req: FastifyRequest,
+  reply: FastifyReply,
+) {
+  const { role } = req.user;
+  if (role !== "DOCTOR" && role !== "RECEPTIONIST" && role !== "ADMIN") {
+    return reply.status(403).send({ message: "Unauthorized" });
+  }
+}
+
 export async function requireRoleAdmin(
   req: FastifyRequest,
   reply: FastifyReply,

@@ -21,6 +21,7 @@ import {
 import {
   jwtAuthMiddleware,
   requireRoleDoctor,
+  requireRoleDoctorOrReceptionist,
   requireRoleReceptionist,
 } from "./middlewares/jwt.js";
 
@@ -100,14 +101,16 @@ export async function routes(app: FastifyInstance) {
   app.get(
     "/api/appointments",
     {
-      preHandler: [jwtAuthMiddleware, requireRoleReceptionist],
+      preHandler: [jwtAuthMiddleware, requireRoleDoctorOrReceptionist],
     },
     getAppointmentsController,
   );
 
   app.get(
     "/api/appointments/:id",
-    { preHandler: [jwtAuthMiddleware, requireRoleReceptionist] },
+    {
+      preHandler: [jwtAuthMiddleware, requireRoleDoctorOrReceptionist],
+    },
     getAppointmentByIdController,
   );
 
